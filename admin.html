@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部落格後台</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E3F2FD;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            background-color: #BBDEFB;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .button {
+            padding: 10px 15px;
+            background: #64B5F6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .article-list {
+            margin-top: 20px;
+        }
+        .article-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+    <script>
+        function loadArticles() {
+            let articles = JSON.parse(localStorage.getItem("articles")) || [];
+            let articleList = document.getElementById("articleList");
+            articleList.innerHTML = "";
+            articles.forEach((article, index) => {
+                let articleItem = document.createElement("div");
+                articleItem.classList.add("article-item");
+                articleItem.innerHTML = `
+                    <span>${article.title}</span>
+                    <div>
+                        <button class="button" onclick="editArticle(${index})">編輯</button>
+                        <button class="button" onclick="deleteArticle(${index})">刪除</button>
+                    </div>
+                `;
+                articleList.appendChild(articleItem);
+            });
+        }
+
+        function addArticle() {
+            let title = document.getElementById("title").value;
+            let content = document.getElementById("content").value;
+            if (!title.trim() || !content.trim()) return;
+            
+            let articles = JSON.parse(localStorage.getItem("articles")) || [];
+            articles.push({ title, content });
+            localStorage.setItem("articles", JSON.stringify(articles));
+            
+            document.getElementById("title").value = "";
+            document.getElementById("content").value = "";
+            loadArticles();
+        }
+
+        function deleteArticle(index) {
+            let articles = JSON.parse(localStorage.getItem("articles"));
+            articles.splice(index, 1);
+            localStorage.setItem("articles", JSON.stringify(articles));
+            loadArticles();
+        }
+
+        function editArticle(index) {
+            let articles = JSON.parse(localStorage.getItem("articles"));
+            let title = prompt("修改標題：", articles[index].title);
+            let content = prompt("修改內容：", articles[index].content);
+            if (title !== null && content !== null) {
+                articles[index] = { title, content };
+                localStorage.setItem("articles", JSON.stringify(articles));
+                loadArticles();
+            }
+        }
+    </script>
+</head>
+<body onload="loadArticles()">
+    <header>部落格後台</header>
+    <div class="container">
+        <h2>新增文章</h2>
+        <input id="title" class="input-field" type="text" placeholder="文章標題">
+        <textarea id="content" class="input-field" placeholder="文章內容"></textarea>
+        <button class="button" onclick="addArticle()">新增文章</button>
+        
+        <h2>文章列表</h2>
+        <div id="articleList" class="article-list"></div>
+    </div>
+</body>
+</html>

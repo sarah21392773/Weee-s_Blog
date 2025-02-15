@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人部落格</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E3F2FD;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            background-color: #BBDEFB;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .post {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .post:last-child {
+            border-bottom: none;
+        }
+        .tags {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .tags span {
+            background: #BBDEFB;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function filterByTag(tag) {
+            let posts = document.querySelectorAll('.post');
+            posts.forEach(post => {
+                if (post.dataset.tags.includes(tag) || tag === 'all') {
+                    post.style.display = 'block';
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <header>個人部落格</header>
+    <div class="container">
+        <h2>最新文章</h2>
+        <div class="tags">
+            <span onclick="filterByTag('all')">全部</span>
+            <span onclick="filterByTag('CTF')">CTF</span>
+            <span onclick="filterByTag('學習')">學習</span>
+            <span onclick="filterByTag('成長')">成長</span>
+        </div>
+        <div class="post" data-tags="CTF,學習" onclick="location.href='article1.html'">📝 <strong>如何解決某道 CTF 題目</strong> - 2025/02/15</div>
+        <div class="post" data-tags="學習" onclick="location.href='article2.html'">📚 <strong>學習 JavaScript 的心得</strong> - 2025/02/14</div>
+        <div class="post" data-tags="成長" onclick="location.href='article3.html'">🚀 <strong>成長之路：從新手到進階</strong> - 2025/02/13</div>
+    </div>
+</body>
+</html>

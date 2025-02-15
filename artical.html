@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>如何解決某道 CTF 題目</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E3F2FD;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            background-color: #BBDEFB;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .back-button {
+            display: block;
+            margin: 20px 0;
+            padding: 10px;
+            background: #64B5F6;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .comment-section {
+            margin-top: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .comment-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .comment-button {
+            margin-top: 10px;
+            padding: 10px;
+            background: #64B5F6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function addComment() {
+            let commentText = document.getElementById("commentInput").value;
+            if (commentText.trim() === "") return;
+            
+            let commentsContainer = document.getElementById("comments");
+            let newComment = document.createElement("div");
+            newComment.classList.add("comment");
+            newComment.textContent = commentText;
+            commentsContainer.appendChild(newComment);
+            
+            localStorage.setItem("comments", commentsContainer.innerHTML);
+            document.getElementById("commentInput").value = "";
+        }
+
+        function loadComments() {
+            let savedComments = localStorage.getItem("comments");
+            if (savedComments) {
+                document.getElementById("comments").innerHTML = savedComments;
+            }
+        }
+    </script>
+</head>
+<body onload="loadComments()">
+    <header>個人部落格</header>
+    <div class="container">
+        <h1>如何解決某道 CTF 題目</h1>
+        <p><strong>發布日期：</strong> 2025/02/15</p>
+        <p>這篇文章將分享如何解決某道 CTF 題目，包含分析題目、找出漏洞以及如何撰寫 exploit。</p>
+        <p>首先，我們先分析題目的類型...</p>
+        <p>（此處可以放更多詳細內容）</p>
+        
+        <div class="comment-section">
+            <h3>留言區</h3>
+            <div id="comments"></div>
+            <textarea id="commentInput" class="comment-input" placeholder="留下你的留言..."></textarea>
+            <button class="comment-button" onclick="addComment()">提交</button>
+        </div>
+        
+        <a href="index.html" class="back-button">返回首頁</a>
+    </div>
+</body>
+</html>

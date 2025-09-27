@@ -1,0 +1,21 @@
+body { font-family: Arial; background:#E3F2FD; margin:0; padding:0;}
+.container { max-width:800px; margin:20px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+header { background:#BBDEFB; padding:20px; font-size:24px; text-align:center; font-weight:bold; position:relative;}
+.input-field { width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px;}
+.button { padding:10px 15px; background:#64B5F6; color:white; border:none; border-radius:5px; cursor:pointer; margin-right:10px;}
+#preview { border:1px solid #ccc; padding:10px; min-height:100px; margin-top:10px;}
+.tag-chip {
+  display:inline-block;
+  background:#64B5F6;
+  color:white;
+  padding:3px 8px;
+  border-radius:10px;
+  margin-right:5px;
+  margin-bottom:5px;
+  font-size:12px;
+  cursor:grab;
+}
+.tag-chip span { margin-left:5px; cursor:pointer; }
+@media (max-width:600px){
+    header { font-size:20px; padding:15px; }
+}

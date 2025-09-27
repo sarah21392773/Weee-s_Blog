@@ -1,259 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weee的成長日記???</title>
-<style>
-body { font-family: Arial; background:#E3F2FD; margin:0; padding:0;}
-/* 固定 header */
-header {
-    background:#90CAF9;
-    padding:20px;
-    font-size:28px;
-    font-weight:bold;
-    text-align:center;
-    color:white;
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.header-left {
-    position:absolute;
-    left:20px;
-    display:flex;
-    gap:15px;
-    align-items:center;
-}
-.header-left a {
-    color:white;
-    font-size:24px;
-    transition: transform 0.3s;
-}
-.header-left a:hover { transform: scale(1.2); }
-
-/* container */
-.container { 
-    max-width:1000px; 
-    margin:100px auto 20px; /* 頂部留出 header 高度 */
-    padding:10px;
-}
-.tags { text-align:center; margin-bottom:20px;}
-.tags span { 
-    background:#BBDEFB; padding:6px 12px; margin:5px; border-radius:20px; cursor:pointer; display:inline-block; transition: all 0.2s ease;
-}
-.tags span:hover, .tags span.active { background:#64B5F6; color:white;}
-.posts { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px;}
-.post { background:white; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); padding:20px; text-align:left; cursor: pointer; transition: all 0.25s ease;}
-.post h3 { margin:0; font-size:20px; color:#1565C0;}
-.post p { font-size:14px; color:#555; margin-top:10px;}
-.post .meta { font-size:12px; color:#888; margin-top:10px;}
-.post .tag-list span { background:#E3F2FD; padding:4px 8px; border-radius:10px; font-size:12px; margin-right:5px;}
-.post:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
-
-/* 搜尋框樣式 */
-#searchBtn {
-    position: absolute;
-    top: 20px;
-    right: 50px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: white;
-    transition: transform 0.3s ease;
-}
-#searchBtn:hover { transform: scale(1.2); }
-/* 點擊動畫 keyframes */
-@keyframes clickRotateBounce {
-    0%   { transform: rotate(0deg) scale(1); }
-    50%  { transform: rotate(180deg) scale(1.4); }
-    75%  { transform: rotate(270deg) scale(1.3); }
-    100% { transform: rotate(360deg) scale(1.2); }
-}
-
-/* 搜尋框淡入展開 */
-#searchInput {
-    position: absolute;
-    top: 20px;
-    right: 100px;
-    padding: 5px 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    width: 0;
-    opacity: 0;
-    transition: width 0.4s ease, opacity 0.4s ease;
-}
-#searchInput.show {
-    width: 180px;
-    opacity: 1;
-}
-
-/* 回到頂部按鈕 */
-#topBtn {
-    position: fixed;
-    bottom: 40px;
-    right: 30px;
-    display: none;
-    font-size: 18px;
-    padding: 10px 15px;
-    background:#90CAF9;
-    color:white;
-    border:none;
-    border-radius:50px;
-    cursor:pointer;
-    box-shadow:0 4px 8px rgba(0,0,0,0.2);
-    transition: transform 0.3s, opacity 0.3s;
-}
-#topBtn:hover { transform: scale(1.2); }
-</style>
-
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Weee的成長日記???</title>
 </head>
 <body>
-<header>
-    <div class="header-left">
-        <a href="https://github.com/sarah21392773" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://www.instagram.com/yirouwu.0914/" target="_blank"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.facebook.com/wu.yi.rou.378560/" target="_blank"><i class="fab fa-facebook"></i></a>
+    <header>
+        <div class="header-left">
+            <a href="https://github.com/sarah21392773" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.instagram.com/yirouwu.0914/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/wu.yi.rou.378560/" target="_blank"><i class="fab fa-facebook"></i></a>
+        </div>
+        Weee的成長日記???
+        <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <input type="text" id="searchInput" placeholder="搜尋文章...">
+    </header>
+
+    <div class="container">
+        <h2 style="text-align:center;">最新文章</h2>
+        <div class="tags" id="tagContainer"></div>
+        <div class="posts"></div>
     </div>
-    Weee的成長日記???
-    <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
-    <input type="text" id="searchInput" placeholder="搜尋文章...">
-</header>
-
-<div class="container">
-    <h2 style="text-align:center;">最新文章</h2>
-    <div class="tags" id="tagContainer"></div>
-    <div class="posts"></div>
-</div>
-
-<!-- 回到頂部按鈕 -->
-<button id="topBtn"><i class="fa-solid fa-arrow-up"></i></button>
-
-<script>
-let currentTag = 'all';
-const searchBtn = document.getElementById('searchBtn');
-const searchInput = document.getElementById('searchInput');
-const topBtn = document.getElementById('topBtn');
-
-// 搜尋按鈕動畫
-searchBtn.addEventListener('click', () => {
-    const isShow = searchInput.classList.toggle('show');
-
-    searchBtn.style.animation = 'clickRotateBounce 0.6s ease forwards';
-    searchBtn.addEventListener('animationend', () => {
-        searchBtn.style.animation = '';
-        if(!searchInput.classList.contains('show')){
-            searchBtn.style.transform = 'scale(1) rotate(0deg)';
-        }
-    }, { once: true });
-
-    if(isShow) searchInput.focus();
-    else {
-        searchInput.value = '';
-        loadPosts();
-    }
-});
-
-// 滾動偵測，顯示/隱藏回到頂部按鈕
-window.onscroll = () => {
-    if(document.body.scrollTop > 200 || document.documentElement.scrollTop > 200){
-        topBtn.style.display = 'block';
-    } else {
-        topBtn.style.display = 'none';
-    }
-};
-
-// 點擊回到頂部
-topBtn.addEventListener('click', () => {
-    window.scrollTo({ top:0, behavior:'smooth' });
-});
-
-// 標籤與文章功能
-function loadTags() {
-    const articles = JSON.parse(localStorage.getItem('articles')) || [];
-    const tagSet = new Set();
-    articles.forEach(a => {
-        (a.tags || '').split(',').forEach(t => {
-            if(t.trim()) tagSet.add(t.trim());
-        });
-    });
-
-    const tagContainer = document.getElementById('tagContainer');
-    tagContainer.innerHTML = '';
-
-    const allSpan = document.createElement('span');
-    allSpan.textContent = '全部';
-    allSpan.classList.add('active');
-    allSpan.onclick = () => setTag('all');
-    tagContainer.appendChild(allSpan);
-
-    tagSet.forEach(tag => {
-        const span = document.createElement('span');
-        span.textContent = tag;
-        span.onclick = () => setTag(tag);
-        tagContainer.appendChild(span);
-    });
-}
-
-function setTag(tag){
-    currentTag = tag;
-    document.querySelectorAll('#tagContainer span').forEach(s => s.classList.remove('active'));
-    const spans = Array.from(document.querySelectorAll('#tagContainer span'));
-    const activeSpan = spans.find(s => s.textContent === tag);
-    if(activeSpan) activeSpan.classList.add('active');
-    loadPosts();
-}
-
-function loadPosts() {
-    const postsContainer = document.querySelector('.posts');
-    const articles = JSON.parse(localStorage.getItem('articles')) || [];
-    const keyword = searchInput.value.trim().toLowerCase();
-    const sortedArticles = [...articles].sort((a,b)=>{
-        const dateA = a.date ? new Date(a.date) : new Date(0);
-        const dateB = b.date ? new Date(b.date) : new Date(0);
-        return dateB - dateA;
-    });
-
-    postsContainer.innerHTML = '';
-    sortedArticles.forEach(article => {
-        const tags = (article.tags || '').split(',').map(t => t.trim());
-        if(currentTag !== 'all' && !tags.includes(currentTag)) return;
-        if(keyword && !article.title.toLowerCase().includes(keyword) && !article.content.toLowerCase().includes(keyword)) return;
-
-        const post = document.createElement('div');
-        post.className = 'post';
-        post.dataset.tags = article.tags || '未分類';
-        post.onclick = () => location.href = 'article.html?id=' + article.id;
-
-        const preview = article.content.length > 50 ? article.content.substring(0,50)+'...' : article.content;
-        const displayDate = article.date ? new Date(article.date).toLocaleDateString() : '未知日期';
-        post.innerHTML = `
-            <h3>${article.title}</h3>
-            <p>${preview}</p>
-            <div class="tag-list">${tags.map(t=>`<span>${t}</span>`).join('')}</div>
-            <div class="meta">${displayDate}</div>
-        `;
-        postsContainer.appendChild(post);
-    });
-}
-
-searchInput.addEventListener('input', loadPosts);
-
-window.onload = () => {
-    loadTags();
-    loadPosts();
-};
-</script>
+    <button id="topBtn"><i class="fa-solid fa-arrow-up"></i></button>
+    <script src="scripts/index.js"></script>
 </body>
 </html>

@@ -1,250 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>文章內容</title>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-<style>
-body { font-family: Arial; background:#E3F2FD; margin:0; padding:0; }
-
-/* 固定 header */
-header {
-    background:#90CAF9;
-    padding:20px;
-    font-size:28px;
-    font-weight:bold;
-    color:white;
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    z-index:999;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.header-left { display:flex; gap:15px; }
-.header-left a { color:white; font-size:24px; transition: transform 0.3s; }
-.header-left a:hover { transform: rotate(-10deg) scale(1.2); }
-.header-right { font-size:24px; cursor:pointer; color:white; transition: transform 0.2s; transform: translateX(-45px); }
-.header-right:hover { transform: translateX(-45px) rotate(-10deg) scale(1.2); }
-#articleTitle { position:absolute; left:50%; transform:translateX(-50%); text-align:center; }
-
-/* container */
-.container {
-    max-width:800px;
-    margin:100px auto 20px; /* 頂部留出 header 高度 */
-    padding:20px;
-    background:white;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* 文章內容 */
-#article-content img { max-width:100%; height:auto; border-radius:8px; }
-
-/* 留言區 */
-.comment-section {
-  margin-top:40px;
-  padding:20px;
-  background:#f9f9f9;
-  border-radius:12px;
-}
-.comment-section.collapsed { padding:10px; }
-#toggleCommentsBtn { font-size:20px; cursor:pointer; user-select:none; }
-#toggleArrow { display:inline-block; margin-left:5px; transition: transform 0.3s ease; }
-.comment-section.collapsed #toggleArrow { transform: rotate(180deg); }
-
-/* 表單 */
-.comment-form { display:flex; flex-direction:column; margin-bottom:20px; }
-.comment-form input, .comment-form textarea { margin-bottom:10px; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:14px; }
-.comment-form textarea { min-height:80px; resize:none; }
-.comment-form button { padding:8px 16px; border:none; border-radius:8px; background:#4a90e2; color:white; font-size:14px; cursor:pointer; transition: background 0.3s; }
-.comment-form button:hover { background:#357ab8; }
-
-/* 留言清單 */
-.comment-list { display:flex; flex-direction:column-reverse; gap:15px; }
-.comment { display:flex; background:white; border-radius:10px; padding:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
-.comment .avatar { width:40px; height:40px; background:#4a90e2; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; margin-right:12px; flex-shrink:0; }
-.comment .content { flex:1; }
-.comment .author { font-weight:bold; margin:0; font-size:14px; }
-.comment .text { margin:5px 0; font-size:14px; line-height:1.5; }
-.comment .meta { font-size:12px; color:#777; display:flex; gap:10px; }
-.comment .meta .actions { cursor:pointer; }
-.comment .meta .actions:hover { color:#4a90e2; }
-
-/* 回主頁按鈕 */
-.back-home {
-  display:block;
-  width:150px;
-  margin:40px auto 20px auto;
-  padding:10px 0;
-  text-align:center;
-  background:#64B5F6;
-  color:white;
-  border-radius:8px;
-  font-size:16px;
-  text-decoration:none;
-  transition: background 0.3s;
-}
-.back-home:hover { background:#357ab8; }
-
-/* 回到頂部按鈕 */
-#topBtn {
-    position: fixed;
-    bottom: 40px;
-    right: 30px;
-    display: none;
-    font-size: 18px;
-    padding: 10px 15px;
-    background:#90CAF9;
-    color:white;
-    border:none;
-    border-radius:50px;
-    cursor:pointer;
-    box-shadow:0 4px 8px rgba(0,0,0,0.2);
-    transition: transform 0.3s, opacity 0.3s;
-    z-index: 999;
-}
-#topBtn:hover { transform: scale(1.2); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/article.css">
+    <title>文章內容</title>
 </head>
 <body>
-<header>
-  <div class="header-left">
-         <a href="https://github.com/sarah21392773" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://www.instagram.com/yirouwu.0914/" target="_blank"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.facebook.com/wu.yi.rou.378560/" target="_blank"><i class="fab fa-facebook"></i></a>
-  </div>
-  <span id="articleTitle">文章內容</span>
-  <div class="header-right" onclick="window.location.href='index.html'">
-    <i class="fa-solid fa-house"></i>
-  </div>
-</header>
-
-<div class="container">
-    <div id="article-content"></div>
-
-    <div class="comment-section" id="commentSection">
-        <h2 id="toggleCommentsBtn">留言區 <span id="toggleArrow">▲</span></h2>
-        <div class="comment-form">
-            <input type="text" id="commentName" placeholder="你的名字">
-            <textarea id="commentText" placeholder="寫下你的留言..."></textarea>
-            <button onclick="addComment()">送出留言</button>
-        </div>
-        <div class="comment-list" id="commentList"></div>
+    <header>
+    <div class="header-left">
+            <a href="https://github.com/sarah21392773" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.instagram.com/yirouwu.0914/" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/wu.yi.rou.378560/" target="_blank"><i class="fab fa-facebook"></i></a>
     </div>
+    <span id="articleTitle">文章內容</span>
+    <div class="header-right" onclick="window.location.href='index.html'">
+        <i class="fa-solid fa-house"></i>
+    </div>
+    </header>
 
-    <a href="index.html" class="back-home">回主頁</a>
-</div>
-
-<!-- 回到頂部按鈕 -->
-<button id="topBtn"><i class="fa-solid fa-arrow-up"></i></button>
-
-<script>
-// ----- 文章內容 -----
-const urlParams = new URLSearchParams(window.location.search);
-const articleId = urlParams.get('id');
-const articles = JSON.parse(localStorage.getItem('articles')) || [];
-let article = articles.find(a=>a.id==articleId);
-if(!article) article = {
-    title:'範例文章',
-    content:'這是一篇 **Markdown** 範例文章。\n\n```javascript\nconsole.log("Hello World");\n```\n\n![圖片範例](https://via.placeholder.com/600x300)',
-    id:1
-};
-
-// 動態設定頁面標題
-document.title = article.title;
-document.getElementById('articleTitle').textContent = article.title;
-
-const contentDiv = document.getElementById('article-content');
-contentDiv.innerHTML = marked.parse(article.content);
-contentDiv.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
-
-// ----- 留言功能 -----
-const commentKey = 'comments_' + article.id;
-function getRandomBlue(){
-    const blues = ['#4a90e2','#357ab8','#5dade2','#1f618d','#2980b9','#5499c7','#2471a3'];
-    return blues[Math.floor(Math.random() * blues.length)];
-}
-function loadComments(){
-    const comments = JSON.parse(localStorage.getItem(commentKey)) || [];
-    const container = document.getElementById('commentList');
-    container.innerHTML = '';
-    comments.forEach((c,i)=>{
-        const div = document.createElement('div');
-        div.className='comment';
-        const avatarLetter = c.name.trim()[0]?.toUpperCase() || 'U';
-        const avatarColor = getRandomBlue();
-        div.innerHTML = `
-            <div class="avatar" style="background:${avatarColor}">${avatarLetter}</div>
-            <div class="content">
-                <p class="author">${c.name}</p>
-                <p class="text">${marked.parseInline(c.text)}</p>
-                <div class="meta">
-                    <span class="time">剛剛</span>
-                    <span class="actions" onclick="deleteComment(${i})">刪除</span>
-                    <span class="actions">👍 0　💬 回覆</span>
-                </div>
+    <div class="container">
+        <div id="article-content"></div>
+        <div class="comment-section" id="commentSection">
+            <h2 id="toggleCommentsBtn">留言區 <span id="toggleArrow">▲</span></h2>
+            <div class="comment-form">
+                <input type="text" id="commentName" placeholder="你的名字">
+                <textarea id="commentText" placeholder="寫下你的留言..."></textarea>
+                <button onclick="addComment()">送出留言</button>
             </div>
-        `;
-        container.appendChild(div);
-    });
-}
-function addComment(){
-    const name = document.getElementById('commentName').value.trim();
-    const text = document.getElementById('commentText').value.trim();
-    if(!name || !text){ alert('請填寫名字和留言'); return; }
-    const comments = JSON.parse(localStorage.getItem(commentKey)) || [];
-    comments.push({name,text,time:new Date().toLocaleString()});
-    localStorage.setItem(commentKey, JSON.stringify(comments));
-    document.getElementById('commentName').value='';
-    document.getElementById('commentText').value='';
-    loadComments();
-}
-function deleteComment(index){
-    const comments = JSON.parse(localStorage.getItem(commentKey)) || [];
-    comments.splice(index,1);
-    localStorage.setItem(commentKey, JSON.stringify(comments));
-    loadComments();
-}
+            <div class="comment-list" id="commentList"></div>
+        </div>
+        <a href="index.html" class="back-home">回主頁</a>
+    </div>
+    <button id="topBtn"><i class="fa-solid fa-arrow-up"></i></button>
 
-// ----- 留言區收合 -----
-const toggleBtn = document.getElementById('toggleCommentsBtn');
-const commentSection = document.getElementById('commentSection');
-toggleBtn.addEventListener('click',()=>{
-    commentSection.classList.toggle('collapsed');
-    const commentList = commentSection.querySelector('.comment-list');
-    const form = commentSection.querySelector('.comment-form');
-    if(commentSection.classList.contains('collapsed')){
-        commentList.style.display='none';
-        form.style.display='none';
-    }else{
-        commentList.style.display='flex';
-        form.style.display='flex';
-    }
-});
-
-// ----- 回到頂部按鈕 -----
-const topBtn = document.getElementById('topBtn');
-window.onscroll = () => {
-    if(document.body.scrollTop > 200 || document.documentElement.scrollTop > 200){
-        topBtn.style.display = 'block';
-    } else {
-        topBtn.style.display = 'none';
-    }
-};
-topBtn.addEventListener('click', () => {
-    window.scrollTo({ top:0, behavior:'smooth' });
-});
-
-// 初始化
-loadComments();
-</script>
+    <script src="scripts/article.js"></script>
 </body>
 </html>

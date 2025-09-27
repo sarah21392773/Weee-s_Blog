@@ -1,137 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>部落格後台</title>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<style>
-body { font-family: Arial; background:#E3F2FD; margin:0; padding:0;}
-.container { max-width:800px; margin:20px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-header { background:#BBDEFB; padding:20px; font-size:24px; text-align:center; font-weight:bold; position:relative;}
-.input-field { width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px;}
-.button { padding:10px 15px; background:#64B5F6; color:white; border:none; border-radius:5px; cursor:pointer; margin-right:10px;}
-#preview { border:1px solid #ccc; padding:10px; min-height:100px; margin-top:10px;}
-.tag-chip {
-  display:inline-block;
-  background:#64B5F6;
-  color:white;
-  padding:3px 8px;
-  border-radius:10px;
-  margin-right:5px;
-  margin-bottom:5px;
-  font-size:12px;
-  cursor:grab;
-}
-.tag-chip.dragging { opacity:0.5; }
-.tag-chip span { margin-left:5px; cursor:pointer; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="css/admin.css">
+  <title>部落格後台</title>
 </head>
+
 <body>
-<header>
-    部落格後台
-    <button class="button" style="position:absolute; right:20px; top:20px;" onclick="window.location.href='blog.html'">
-        文章清單
-    </button>
-</header>
+  <header>
+      部落格後台
+      <button class="button" style="position:absolute; right:20px; top:20px;" onclick="window.location.href='blog.html'">
+          文章清單
+      </button>
+  </header>
 
-<div class="container">
-    <h2>新增文章</h2>
-    <input id="title" class="input-field" placeholder="文章標題">
+  <div class="container">
+      <h2>新增文章</h2>
+      <input id="title" class="input-field" placeholder="文章標題">
 
-    <h3>選擇標籤</h3>
-    <div id="tagOptions">
-        <label><input type="checkbox" value="CTF" onchange="updateSelectedTags()"> CTF</label>
-        <label><input type="checkbox" value="競程" onchange="updateSelectedTags()"> 競程</label>
-        <label><input type="checkbox" value="專題" onchange="updateSelectedTags()"> 專題</label>
-    </div>
-    <input id="tagsCustom" class="input-field" placeholder="自訂標籤，用逗號分隔" oninput="updateSelectedTags()">
-    <div id="selectedTags"></div>
+      <h3>選擇標籤</h3>
+      <div id="tagOptions">
+          <label><input type="checkbox" value="CTF" onchange="updateSelectedTags()"> CTF</label>
+          <label><input type="checkbox" value="競程" onchange="updateSelectedTags()"> 競程</label>
+          <label><input type="checkbox" value="專題" onchange="updateSelectedTags()"> 專題</label>
+      </div>
+      <input id="tagsCustom" class="input-field" placeholder="自訂標籤，用逗號分隔" oninput="updateSelectedTags()">
+      <div id="selectedTags"></div>
 
-    <textarea id="content" class="input-field" placeholder="Markdown內容"></textarea>
-    <button class="button" onclick="addArticle()">新增文章</button>
+      <textarea id="content" class="input-field" placeholder="Markdown內容"></textarea>
+      <button class="button" onclick="addArticle()">新增文章</button>
 
-    <h3>Markdown 預覽</h3>
-    <div id="preview"></div>
-</div>
+      <h3>Markdown 預覽</h3>
+      <div id="preview"></div>
+  </div>
 
-<script>
-document.getElementById('content').addEventListener('input',()=>{
-    const content=document.getElementById('content').value;
-    const preview=document.getElementById('preview');
-    preview.innerHTML = marked.parse(content);
-    preview.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
-});
-
-function removeTag(tag){
-  const checkbox = document.querySelector(`#tagOptions input[value="${tag}"]`);
-  if(checkbox) checkbox.checked=false;
-  const customInput = document.getElementById('tagsCustom');
-  customInput.value = customInput.value.split(','||'，').map(t=>t.trim()).filter(t=>t && t!==tag).join(',');
-  updateSelectedTags();
-}
-
-function updateSelectedTags(){
-  const selectedTagsDiv = document.getElementById('selectedTags');
-  const checkboxes = Array.from(document.querySelectorAll('#tagOptions input[type=checkbox]:checked')).map(cb=>cb.value);
-  const customTags = document.getElementById('tagsCustom').value.split(',').map(t=>t.trim()).filter(t=>t);
-  const merged = Array.from(new Set([...checkboxes, ...customTags]));
-
-  selectedTagsDiv.innerHTML='';
-  merged.forEach(tag=>{
-    const chip = document.createElement('div');
-    chip.className='tag-chip';
-    chip.setAttribute('draggable','true');
-    chip.innerHTML=`${tag} <span onclick="removeTag('${tag}')">&times;</span>`;
-    chip.addEventListener('dragstart',()=>chip.classList.add('dragging'));
-    chip.addEventListener('dragend',()=>chip.classList.remove('dragging'));
-    selectedTagsDiv.appendChild(chip);
-  });
-
-  // 拖拉排序
-  selectedTagsDiv.addEventListener('dragover', e=>{
-    e.preventDefault();
-    const afterElement = getDragAfterElement(selectedTagsDiv, e.clientX);
-    const dragging = selectedTagsDiv.querySelector('.dragging');
-    if(dragging){
-      if(afterElement==null) selectedTagsDiv.appendChild(dragging);
-      else selectedTagsDiv.insertBefore(dragging, afterElement);
-    }
-  });
-}
-
-function getDragAfterElement(container, x){
-  const draggableElements = [...container.querySelectorAll('.tag-chip:not(.dragging)')];
-  return draggableElements.reduce((closest, child)=>{
-    const box = child.getBoundingClientRect();
-    const offset = x - box.left - box.width/2;
-    if(offset < 0 && offset > closest.offset) return { offset: offset, element: child };
-    else return closest;
-  }, { offset:Number.NEGATIVE_INFINITY }).element;
-}
-
-function getSelectedTags(){
-  const chips = document.querySelectorAll('#selectedTags .tag-chip');
-  return Array.from(chips).map(c=>c.textContent.slice(0,-2));
-}
-
-function addArticle(){
-  const title = document.getElementById('title').value.trim();
-  const content = document.getElementById('content').value.trim();
-  const tags = getSelectedTags().join(',');
-  if(!title||!content) return;
-  const articles = JSON.parse(localStorage.getItem('articles'))||[];
-  const id = articles.length>0? Math.max(...articles.map(a=>a.id||0))+1 :0;
-  articles.push({id,title,content,tags,date:new Date().toLocaleString()});
-  localStorage.setItem('articles',JSON.stringify(articles));
-  document.getElementById('title').value='';
-  document.getElementById('content').value='';
-  document.getElementById('tagsCustom').value='';
-  document.getElementById('selectedTags').innerHTML='';
-  document.getElementById('preview').innerHTML='';
-}
-</script>
+  <script src="scripts/admin.js"></script>
 </body>
 </html>

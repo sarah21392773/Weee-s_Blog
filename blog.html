@@ -1,266 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>部落格後台管理</title>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<style>
-body { font-family: Arial; background:#E3F2FD; margin:0; padding:0;}
-header { background:#BBDEFB; padding:20px; font-size:24px; text-align:center; font-weight:bold; position:sticky; top:0; z-index:100;}
-.top-bar { background:#E3F2FD; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:72px; z-index:99; border-bottom:1px solid #ccc;}
-.tag-stat span { background:#BBDEFB; padding:5px 10px; border-radius:10px; font-size:12px; margin-right:5px; cursor:pointer;}
-.tag-stat span.active, .tag-stat span:hover { background:#64B5F6; color:white;}
-.search-area { display:flex; align-items:center; gap:10px;}
-.search-area input[type="text"] { padding:5px 10px; border-radius:5px; border:1px solid #ccc;}
-.search-area button { padding:5px 10px; border:none; border-radius:5px; background:#64B5F6; color:white; cursor:pointer;}
-.button { padding:10px 15px; background:#64B5F6; color:white; border:none; border-radius:5px; cursor:pointer; margin-right:10px;}
-.container { max-width:900px; margin:120px auto 20px; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
-.article-item { border-bottom:1px solid #ddd; padding:10px 0; margin-bottom:10px;}
-.article-item h3 { margin:0;}
-.tag-list span { background:#E3F2FD; padding:3px 8px; border-radius:10px; font-size:12px; margin-right:5px; cursor:pointer;}
-.tag-list span:hover, .tag-list span.active { background:#64B5F6; color:white;}
-.comment { border-bottom:1px solid #ccc; padding:5px 0;}
-.comment strong{color:#1565C0;}
-.edit-area { display:none; margin-top:10px; border:1px solid #ccc; padding:10px; border-radius:5px;}
-textarea { width:100%; min-height:100px; padding:10px; border:1px solid #ccc; border-radius:5px; resize:vertical;}
-#preview { border:1px solid #ccc; padding:10px; margin-top:10px; border-radius:5px; min-height:80px; background:#f9f9f9;}
-input[type="date"] { padding:5px; margin:5px 0; border-radius:5px; border:1px solid #ccc; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="css/blog.css">
+    <title>部落格後台管理</title>
 </head>
 <body>
-<header>
-    部落格後台管理
-    <button class="button" style="position:absolute; right:20px; top:20px;" onclick="window.location.href='admin.html'">
-    新增文章
-    </button>
-</header>
+    <header>
+        部落格後台管理
+        <button class="button" style="position:absolute; right:20px; top:20px;" onclick="window.location.href='admin.html'">
+        新增文章
+        </button>
+    </header>
 
-<div class="top-bar">
-    <div class="tag-stat" id="tagStats"></div>
-    <div class="search-area">
-        <input type="text" id="searchKeyword" placeholder="搜尋標題或內容">
-        <button onclick="applySearch()">篩選</button>
-        <button onclick="resetSearch()">清除篩選</button>
+    <div class="top-bar">
+        <div class="tag-stat" id="tagStats"></div>
+        <div class="search-area">
+            <input type="text" id="searchKeyword" placeholder="搜尋標題或內容">
+            <button onclick="applySearch()">篩選</button>
+            <button onclick="resetSearch()">清除篩選</button>
+        </div>
     </div>
-</div>
+    <div class="container" id="content"></div>
 
-<div class="container" id="content"></div>
-
-<script>
-// ----- 儲存搜尋狀態 -----
-let currentKeyword = '';
-let currentTags = [];
-
-// ----- 更新標籤統計列 -----
-function updateTagStats(){
-    const articles = JSON.parse(localStorage.getItem('articles'))||[];
-    const tagCounts = {};
-    articles.forEach(a=>{
-        (a.tags||'').split(',').forEach(t=>{
-            if(!t) return;
-            const key = t.trim();
-            tagCounts[key] = (tagCounts[key]||0)+1;
-        });
-    });
-
-    const container = document.getElementById('tagStats');
-    container.innerHTML = '';
-    for(const t in tagCounts){
-        const span = document.createElement('span');
-        span.textContent = `${t} (${tagCounts[t]})`;
-        if(currentTags.includes(t)) span.classList.add('active');
-        span.onclick = ()=>{
-            if(currentTags.includes(t)){
-                currentTags = currentTags.filter(tag => tag!==t);
-            } else {
-                currentTags.push(t);
-            }
-            applySearch();
-        };
-        container.appendChild(span);
-    }
-}
-
-// ----- 載入文章列表 -----
-function loadArticleList(displayArticles){
-    const content = document.getElementById('content');
-    content.innerHTML = '<h2>文章列表</h2>';
-
-    if(displayArticles.length===0){
-        content.innerHTML += '<p>沒有符合條件的文章</p>';
-        return;
-    }
-
-    displayArticles.forEach((article,index)=>{
-        const commentKey = 'comments_'+article.id;
-        const comments = JSON.parse(localStorage.getItem(commentKey))||[];
-
-        const div = document.createElement('div');
-        div.className = 'article-item';
-        div.innerHTML = `
-            <h3>${article.title}</h3>
-            <div class="tag-list">${(article.tags||'未分類').split(',').map(t=>{
-                const activeClass = currentTags.includes(t)?'active':'';
-                return `<span class="${activeClass}" onclick="toggleArticleTag('${t}')">${t}</span>`;
-            }).join('')}</div>
-            <div style="margin-top:5px;">
-                <button onclick="toggleEdit(${index})">編輯文章</button>
-                <button onclick="deleteArticle(${index})">刪除</button>
-                <button onclick="toggleComments(${index})">留言管理 (${comments.length})</button>
-            </div>
-            <div id="edit-${index}" class="edit-area">
-                <input type="text" id="editTitle-${index}" placeholder="標題" value="${article.title}">
-                <input type="text" id="editTags-${index}" placeholder="標籤，用逗號分隔" value="${article.tags||''}">
-                <input type="date" id="editDate-${index}" value="${article.date ? article.date.split('T')[0] : ''}">
-                <textarea id="editContent-${index}">${article.content}</textarea>
-                <div id="preview-${index}"></div>
-                <button onclick="saveEdit(${index})">儲存修改</button>
-            </div>
-            <div id="comments-${index}" class="comment-list" style="display:none;"></div>
-        `;
-        content.appendChild(div);
-
-        const textarea = document.getElementById(`editContent-${index}`);
-        const preview = document.getElementById(`preview-${index}`);
-        textarea.addEventListener('input',()=>{
-            preview.innerHTML = marked.parse(textarea.value);
-            preview.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
-        });
-        preview.innerHTML = marked.parse(article.content);
-        preview.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
-    });
-}
-
-// ----- 編輯文章 -----
-function toggleEdit(index){
-    const area = document.getElementById(`edit-${index}`);
-    area.style.display = (area.style.display==='none')?'block':'none';
-}
-function saveEdit(index){
-    const articles = JSON.parse(localStorage.getItem('articles'))||[];
-    const title = document.getElementById(`editTitle-${index}`).value.trim();
-    const content = document.getElementById(`editContent-${index}`).value.trim();
-    const tags = document.getElementById(`editTags-${index}`).value.trim();
-    const date = document.getElementById(`editDate-${index}`).value;
-
-    if(title && content){
-        articles[index].title = title;
-        articles[index].content = content;
-        articles[index].tags = tags;
-        articles[index].date = date;
-        localStorage.setItem('articles',JSON.stringify(articles));
-        applySearch();
-    } else {
-        alert('標題與內容不可為空');
-    }
-}
-
-// ----- 刪除文章 -----
-function deleteArticle(index){
-    if(!confirm('確定要刪除這篇文章嗎？')) return;
-    const articles = JSON.parse(localStorage.getItem('articles'))||[];
-    articles.splice(index,1);
-    localStorage.setItem('articles',JSON.stringify(articles));
-    applySearch();
-}
-
-// ----- 留言管理 -----
-function toggleComments(index){
-    const commentDiv = document.getElementById(`comments-${index}`);
-    if(commentDiv.style.display==='none'){
-        loadComments(index);
-        commentDiv.style.display='block';
-    } else {
-        commentDiv.style.display='none';
-    }
-}
-
-function loadComments(index){
-    const articles = JSON.parse(localStorage.getItem('articles'))||[];
-    const article = articles[index];
-    const key = 'comments_' + article.id;
-    const comments = JSON.parse(localStorage.getItem(key))||[];
-    const container = document.getElementById(`comments-${index}`);
-    container.innerHTML = '';
-
-    if(comments.length === 0){
-        container.innerHTML = '<p>目前還沒有留言</p>';
-        return;
-    }
-
-    comments.forEach((c, cIndex)=>{
-        const div = document.createElement('div');
-        div.className='comment';
-        div.innerHTML = `
-            <strong>${c.name}</strong> (${c.time}): ${c.text}
-            <button class="deleteCommentBtn">刪除</button>
-        `;
-        container.appendChild(div);
-
-        div.querySelector('.deleteCommentBtn').addEventListener('click', ()=>{
-            deleteComment(article.id, cIndex, index);
-        });
-    });
-}
-
-function deleteComment(articleId, commentIndex, articleIndex){
-    const key = 'comments_' + articleId;
-    const comments = JSON.parse(localStorage.getItem(key)) || [];
-    comments.splice(commentIndex, 1);
-    localStorage.setItem(key, JSON.stringify(comments));
-
-    // 更新留言數按鈕
-    const articleDiv = document.querySelectorAll('.article-item')[articleIndex];
-    const btns = articleDiv.querySelectorAll('button');
-    btns.forEach(btn=>{
-        if(btn.textContent.includes('留言管理')){
-            btn.textContent = `留言管理 (${comments.length})`;
-        }
-    });
-
-    loadComments(articleIndex);
-}
-
-// ----- 文章標籤點擊切換 -----
-function toggleArticleTag(tag){
-    if(currentTags.includes(tag)){
-        currentTags = currentTags.filter(t=>t!==tag);
-    } else {
-        currentTags.push(tag);
-    }
-    applySearch();
-}
-
-// ----- 進階搜尋 -----
-function applySearch(){
-    currentKeyword = document.getElementById('searchKeyword').value.trim();
-    const articles = JSON.parse(localStorage.getItem('articles'))||[];
-
-    const filtered = articles.filter(a=>{
-        const textMatch = currentKeyword === '' || a.title.includes(currentKeyword) || a.content.includes(currentKeyword);
-        const tagMatch = currentTags.length===0 || currentTags.some(t=> (a.tags||'').split(',').includes(t));
-        return textMatch && tagMatch;
-    });
-
-    updateTagStats();
-    loadArticleList(filtered);
-}
-
-// ----- 重置搜尋 -----
-function resetSearch(){
-    currentKeyword = '';
-    currentTags = [];
-    document.getElementById('searchKeyword').value = '';
-    const articles = JSON.parse(localStorage.getItem('articles'))||[];
-    updateTagStats();
-    loadArticleList(articles);
-}
-
-// ----- 初始化 -----
-window.onload = ()=>{ resetSearch(); };
-</script>
+    <script src="scripts/blog.js"></script>
 </body>
 </html>

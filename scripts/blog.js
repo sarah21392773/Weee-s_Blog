@@ -1,0 +1,234 @@
+let articles = [];       // 全部文章（從 JSON 載入）
+let currentKeyword = ''; // 搜尋關鍵字
+let currentTags = [];    // 已選標籤
+
+// ----- 從 JSON 載入文章 -----
+async function loadArticlesFromJSON(){
+    try {
+        const res = await fetch('./articles.json');
+        articles = await res.json();
+    } catch(e){
+        console.error("讀取 JSON 失敗:", e);
+        articles = [];
+    }
+    localStorage.setItem('articles', JSON.stringify(articles));
+    resetSearch();
+}
+
+// ----- 更新標籤統計列 -----
+function updateTagStats(){
+    const tagCounts = {};
+    articles.forEach(a=>{
+        (a.tags||'').split(',').forEach(t=>{
+            if(!t) return;
+            const key = t.trim();
+            tagCounts[key] = (tagCounts[key]||0)+1;
+        });
+    });
+
+    const container = document.getElementById('tagStats');
+    container.innerHTML = '';
+    for(const t in tagCounts){
+        const span = document.createElement('span');
+        span.textContent = `${t} (${tagCounts[t]})`;
+        if(currentTags.includes(t)) span.classList.add('active');
+        span.onclick = ()=>{
+            if(currentTags.includes(t)){
+                currentTags = currentTags.filter(tag => tag!==t);
+            } else {
+                currentTags.push(t);
+            }
+            applySearch();
+        };
+        container.appendChild(span);
+    }
+}
+
+// ----- 顯示文章列表 -----
+function loadArticleList(displayArticles){
+    const content = document.getElementById('content');
+    content.innerHTML = '<h2>文章列表</h2>';
+
+    if(displayArticles.length===0){
+        content.innerHTML += '<p>沒有符合條件的文章</p>';
+        return;
+    }
+
+    displayArticles.forEach((article,index)=>{
+        const commentKey = 'comments_'+article.id;
+        const comments = JSON.parse(localStorage.getItem(commentKey))||[];
+
+        const div = document.createElement('div');
+        div.className = 'article-item';
+        div.innerHTML = `
+            <h3>${article.title}</h3>
+            <div class="tag-list">${(article.tags||'未分類').split(',').map(t=>{
+                const activeClass = currentTags.includes(t)?'active':'';
+                return `<span class="${activeClass}" onclick="toggleArticleTag('${t}')">${t}</span>`;
+            }).join('')}</div>
+            <div style="margin-top:5px;">
+                <button onclick="toggleEdit(${index})">編輯文章</button>
+                <button onclick="toggleComments(${index})">留言管理 (${comments.length})</button>
+                <button onclick="deleteArticle(${index})">刪除文章</button>
+            </div>
+            <div id="edit-${index}" class="edit-area">
+                <input type="text" id="editTitle-${index}" placeholder="標題" value="${article.title}">
+                <input type="text" id="editTags-${index}" placeholder="標籤，用逗號分隔" value="${article.tags||''}">
+                <textarea id="editContent-${index}">${article.content}</textarea>
+                <div id="preview-${index}"></div>
+                <button onclick="saveEdit(${index})">儲存修改</button>
+            </div>
+            <div id="comments-${index}" class="comment-list" style="display:none;"></div>
+        `;
+        content.appendChild(div);
+
+        // Markdown 預覽
+        const textarea = document.getElementById(`editContent-${index}`);
+        const preview = document.getElementById(`preview-${index}`);
+        textarea.addEventListener('input',()=>{
+            preview.innerHTML = marked.parse(textarea.value);
+            preview.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
+        });
+        preview.innerHTML = marked.parse(article.content);
+        preview.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
+    });
+}
+
+// ----- 編輯文章區域展開/收起 -----
+function toggleEdit(index){
+    const area = document.getElementById(`edit-${index}`);
+    area.style.display = (area.style.display==='none')?'block':'none';
+}
+
+// ----- 儲存文章修改 -----
+function saveEdit(index){
+    const title = document.getElementById(`editTitle-${index}`).value.trim();
+    const content = document.getElementById(`editContent-${index}`).value.trim();
+    const tags = document.getElementById(`editTags-${index}`).value.trim();
+    if(!title || !content){
+        alert('標題與內容不可為空');
+        return;
+    }
+    articles[index].title = title;
+    articles[index].content = content;
+    articles[index].tags = tags;
+    localStorage.setItem('articles', JSON.stringify(articles));
+    loadArticleList(articles);
+    updateTagStats();
+    downloadJSON(); 
+}
+// ----- 刪除文章 -----
+function deleteArticle(index){
+    const article = articles[index];
+    if(!confirm(`確定要刪除文章 "${article.title}" 嗎？`)) return;
+
+    articles.splice(index, 1);
+    localStorage.setItem('articles', JSON.stringify(articles));
+    loadArticleList(articles);
+    updateTagStats();
+    downloadJSON();
+}
+
+
+// ----- 留言管理 -----
+function toggleComments(index){
+    const commentDiv = document.getElementById(`comments-${index}`);
+    if(commentDiv.style.display==='none'){
+        loadComments(index);
+        commentDiv.style.display='block';
+    } else {
+        commentDiv.style.display='none';
+    }
+}
+
+function loadComments(index){
+    const article = articles[index];
+    const key = 'comments_' + article.id;
+    const comments = JSON.parse(localStorage.getItem(key))||[];
+    const container = document.getElementById(`comments-${index}`);
+    container.innerHTML = '';
+
+    if(comments.length === 0){
+        container.innerHTML = '<p>目前還沒有留言</p>';
+        return;
+    }
+
+    comments.forEach((c, cIndex)=>{
+        const div = document.createElement('div');
+        div.className='comment';
+        div.innerHTML = `
+            <strong>${c.name}</strong> (${c.time}): ${c.text}
+            <button class="deleteCommentBtn">刪除</button>
+        `;
+        container.appendChild(div);
+
+        div.querySelector('.deleteCommentBtn').addEventListener('click', ()=>{
+            deleteComment(article.id, cIndex, index);
+        });
+    });
+}
+
+function deleteComment(articleId, commentIndex, articleIndex){
+    const key = 'comments_' + articleId;
+    const comments = JSON.parse(localStorage.getItem(key)) || [];
+    comments.splice(commentIndex, 1);
+    localStorage.setItem(key, JSON.stringify(comments));
+
+    // 更新留言數按鈕
+    const articleDiv = document.querySelectorAll('.article-item')[articleIndex];
+    const btns = articleDiv.querySelectorAll('button');
+    btns.forEach(btn=>{
+        if(btn.textContent.includes('留言管理')){
+            btn.textContent = `留言管理 (${comments.length})`;
+        }
+    });
+
+    loadComments(articleIndex);
+}
+
+// ----- 標籤篩選 -----
+function toggleArticleTag(tag){
+    if(currentTags.includes(tag)){
+        currentTags = currentTags.filter(t=>t!==tag);
+    } else {
+        currentTags.push(tag);
+    }
+    applySearch();
+}
+
+// ----- 搜尋 -----
+function applySearch(){
+    currentKeyword = document.getElementById('searchKeyword').value.trim();
+    const filtered = articles.filter(a=>{
+        const textMatch = currentKeyword === '' || a.title.includes(currentKeyword) || a.content.includes(currentKeyword);
+        const tagMatch = currentTags.length===0 || currentTags.some(t=> (a.tags||'').split(',').includes(t));
+        return textMatch && tagMatch;
+    });
+
+    updateTagStats();
+    loadArticleList(filtered);
+}
+
+// ----- 清除搜尋 -----
+function resetSearch(){
+    currentKeyword = '';
+    currentTags = [];
+    document.getElementById('searchKeyword').value = '';
+    updateTagStats();
+    loadArticleList(articles);
+}
+
+// ----- 下載 JSON -----
+function downloadJSON(){
+    const dataStr = JSON.stringify(articles, null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "articles.json";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ----- 初始化 -----
+window.onload = ()=>{ loadArticlesFromJSON(); };

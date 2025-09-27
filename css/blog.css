@@ -1,0 +1,24 @@
+body { font-family: Arial; background:#E3F2FD; margin:0; padding:0;}
+header { background:#BBDEFB; padding:20px; font-size:24px; text-align:center; font-weight:bold; position:sticky; top:0; z-index:100;}
+.top-bar { background:#E3F2FD; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:72px; z-index:99; border-bottom:1px solid #ccc;}
+.tag-stat span { background:#BBDEFB; padding:5px 10px; border-radius:10px; font-size:12px; margin-right:5px; cursor:pointer;}
+.tag-stat span.active, .tag-stat span:hover { background:#64B5F6; color:white;}
+.search-area { display:flex; align-items:center; gap:10px;}
+.search-area input[type="text"] { padding:5px 10px; border-radius:5px; border:1px solid #ccc;}
+.search-area button { padding:5px 10px; border:none; border-radius:5px; background:#64B5F6; color:white; cursor:pointer;}
+.button { padding:10px 15px; background:#64B5F6; color:white; border:none; border-radius:5px; cursor:pointer; margin-right:10px;}
+.container { max-width:900px; margin:120px auto 20px; background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.article-item { border-bottom:1px solid #ddd; padding:10px 0; margin-bottom:10px;}
+.article-item h3 { margin:0;}
+.tag-list span { background:#E3F2FD; padding:3px 8px; border-radius:10px; font-size:12px; margin-right:5px; cursor:pointer;}
+.tag-list span:hover, .tag-list span.active { background:#64B5F6; color:white;}
+.comment { border-bottom:1px solid #ccc; padding:5px 0;}
+.comment strong{color:#1565C0;}
+.edit-area { display:none; margin-top:10px; border:1px solid #ccc; padding:10px; border-radius:5px;}
+textarea { width:100%; min-height:100px; padding:10px; border:1px solid #ccc; border-radius:5px; resize:vertical;}
+#preview { border:1px solid #ccc; padding:10px; margin-top:10px; border-radius:5px; min-height:80px; background:#f9f9f9;}
+input[type="date"] { padding:5px; margin:5px 0; border-radius:5px; border:1px solid #ccc; }
+@media (max-width:600px){
+    header { font-size:20px; padding:15px; }
+    .header-left a { font-size:20px; }
+}

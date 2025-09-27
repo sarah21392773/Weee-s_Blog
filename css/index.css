@@ -1,6 +1,19 @@
-body { font-family: Arial; background:#E3F2FD; margin:0; padding:0;}
+@font-face {
+    font-family: 'Iansui';
+    src: url('../fonts/Iansui-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+body{
+    font-family: 'Iansui', Arial, sans-serif;
+    background:#E3F2FD; margin:0; padding:0;
+}
+p, span, input, textarea, button, h1, h2, h3, h4, h5, h6, a, div {
+    font-family: 'Iansui', Arial, sans-serif;
+}
 /* 固定 header */
 header {
+    font-family: 'Iansui', Arial, sans-serif;
     background:#90CAF9;
     padding:20px;
     font-size:28px;

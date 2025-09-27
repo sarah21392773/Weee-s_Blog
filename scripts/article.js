@@ -3,6 +3,15 @@ const urlParams = new URLSearchParams(window.location.search);
 const articleId = urlParams.get('id');
 let article = null;
 
+function formatDate(dateStr) {
+    if (!dateStr) return '未知日期';
+    const d = new Date(dateStr);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}/${m}/${day}`;
+}
+
 async function loadArticle() {
     try {
         const res = await fetch('./articles.json');
@@ -29,6 +38,23 @@ function renderArticle(){
     const contentDiv = document.getElementById('article-content');
     contentDiv.innerHTML = marked.parse(article.content);
     contentDiv.querySelectorAll('pre code').forEach(block=>hljs.highlightElement(block));
+
+    // 標籤
+    const tagContainer = document.getElementById('articleTags');
+    tagContainer.innerHTML = '';
+    (article.tags || '').split(',').forEach(tag => {
+        const a = document.createElement('a');
+        a.textContent = tag.trim();
+        a.href = `index.html?tag=${encodeURIComponent(tag.trim())}`;
+        a.className = 'tag-link';
+        tagContainer.appendChild(a);
+    });
+
+    // 日期
+    const dateContainer = document.getElementById('articleDate');
+    if(dateContainer){
+        dateContainer.textContent = formatDate(article.date);
+    }
 
     loadComments();
 }

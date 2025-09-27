@@ -1,7 +1,26 @@
-body { font-family: Arial; background:#E3F2FD; margin:0; padding:0; }
+@font-face {
+    font-family: 'Iansui';
+    src: url('../fonts/Iansui-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+body { font-family: 'Iansui',Arial, sans-serif; background:#E3F2FD; margin:0; padding:0; }
+p, span, input, textarea, button, h1, h2, h3, h4, h5, h6, a, div {
+    font-family: 'Iansui', Arial, sans-serif;
+}
+#articleTitle {
+    font-family: 'Iansui', Arial, sans-serif;
+}
+#article-content {
+    font-family: 'Iansui', Arial, sans-serif;
+}
+#article-content * {
+    font-family: inherit;
+}
 
 /* 固定 header */
 header {
+    font-family: 'Iansui', Arial, sans-serif;
     background:#90CAF9;
     padding:20px;
     font-size:28px;
@@ -34,17 +53,73 @@ header {
     box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* 標籤 */
+.tag-link {
+    display: inline-block;
+    background: #E3F2FD;
+    color: #1565C0;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-right: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+.tag-link:hover {
+    background: #64B5F6;
+    color: white;
+}
+
+
 /* 文章內容 */
 #article-content img { max-width:100%; height:auto; border-radius:8px; }
+.article-header {
+    text-align: left;
+    margin-bottom: 20px;
+}
+.article-header h1 {
+    font-family: 'Iansui', Arial, sans-serif;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #1565C0;
+}
+.article-meta {
+    display: flex;
+    justify-content: flex-start;;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: #555;
+}
+.article-meta #articleDate {
+    font-weight: bold;
+}
+.article-meta .tags span {
+    display: inline-block;
+    background: #E3F2FD;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin: 2px;
+    color: #1565C0;
+}
+.article-meta .tags span:hover {
+    background: #64B5F6;
+    color: white;
+}
 
 /* 留言區 */
-.comment-section {
+.comment-section{
+  font-family: 'Iansui', Arial, sans-serif;
   margin-top:40px;
   padding:20px;
   background:#f9f9f9;
   border-radius:12px;
 }
 .comment-section.collapsed { padding:10px; }
+.comment-section * { font-family: inherit; margin: 0; padding: 0; }
 #toggleCommentsBtn { font-size:20px; cursor:pointer; user-select:none; }
 #toggleArrow { display:inline-block; margin-left:5px; transition: transform 0.3s ease; }
 .comment-section.collapsed #toggleArrow { transform: rotate(180deg); }

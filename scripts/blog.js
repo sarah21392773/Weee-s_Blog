@@ -28,21 +28,29 @@ function updateTagStats(){
 
     const container = document.getElementById('tagStats');
     container.innerHTML = '';
+
+    // 全部按鈕
+    const allSpan = document.createElement('span');
+    allSpan.textContent = `全部 (${articles.length})`;
+    if(currentTags.length===0) allSpan.classList.add('active');
+    allSpan.addEventListener('click', ()=>{
+        currentTags = [];
+        applySearch();
+    });
+    container.appendChild(allSpan);
+
     for(const t in tagCounts){
         const span = document.createElement('span');
         span.textContent = `${t} (${tagCounts[t]})`;
         if(currentTags.includes(t)) span.classList.add('active');
-        span.onclick = ()=>{
-            if(currentTags.includes(t)){
-                currentTags = currentTags.filter(tag => tag!==t);
-            } else {
-                currentTags.push(t);
-            }
-            applySearch();
-        };
+        span.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            toggleArticleTag(t.trim());
+        });
         container.appendChild(span);
     }
 }
+
 
 // ----- 顯示文章列表 -----
 function loadArticleList(displayArticles){
@@ -201,7 +209,9 @@ function applySearch(){
     currentKeyword = document.getElementById('searchKeyword').value.trim();
     const filtered = articles.filter(a=>{
         const textMatch = currentKeyword === '' || a.title.includes(currentKeyword) || a.content.includes(currentKeyword);
-        const tagMatch = currentTags.length===0 || currentTags.some(t=> (a.tags||'').split(',').includes(t));
+        const tagMatch = currentTags.length===0 || currentTags.some(t => 
+            (a.tags||'').split(',').map(x=>x.trim()).includes(t)
+        );
         return textMatch && tagMatch;
     });
 
